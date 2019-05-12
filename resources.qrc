@@ -1,0 +1,11 @@
+<!DOCTYPE RCC><RCC version="1.0">
+    <qresource prefix="/icons">
+        <file alias="lightning">res/icons/lightning.png</file>
+        <file alias="overview">res/icons/overview.png</file>
+        <file alias="receive">res/icons/receive.png</file>
+        <file alias="send">res/icons/send.png</file>
+    </qresource>
+    <qresource prefix="/images">
+    
+    </qresource>
+</RCC>
