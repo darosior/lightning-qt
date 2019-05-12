@@ -3,7 +3,9 @@ import resources
 from lightning import Plugin
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QIcon
-from PyQt5.QtWidgets import QMainWindow, QWidget, QAction, qApp, QDesktopWidget
+from PyQt5.QtWidgets import QMainWindow, QWidget, QAction, qApp, QDesktopWidget, QStackedWidget
+
+from overviewPage import OverviewPage
 
 class MainWindow(QMainWindow):
     """The main window of our application.
@@ -26,6 +28,8 @@ class MainWindow(QMainWindow):
         self.createActions()
         self.createMenu()
         self.createToolbar()
+        self.createPageManager()
+        self.createPages()
 
     def createActions(self):
         """Creates the main actions of the page.
@@ -83,3 +87,17 @@ class MainWindow(QMainWindow):
         self.toolbar.addAction(self.receivepay_action)
         self.toolbar.addAction(self.sendpay_action)
         self.toolbar.addAction(self.managechan_action)
+
+    def createPageManager(self):
+        """Creates the QStackedWidget which we will use as the page manager"""
+        self.page_manager = QStackedWidget(self)
+        self.setCentralWidget(self.page_manager)
+
+    def createPages(self):
+        """Creates each of our pages, which are QWidget-inherited objects
+        
+        We pass a reference to the plugin to pages, so that they can interact
+        with it (for now it's mainly for RPC).
+        """
+        self.overview_page = OverviewPage(self.plugin)
+        self.page_manager.addWidget(self.overview_page)
