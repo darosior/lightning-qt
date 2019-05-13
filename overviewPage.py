@@ -18,30 +18,34 @@ class OverviewPage(QWidget, Ui_OverviewPage):
         """Update the displayed informations from the rpc"""
         funds = self.plugin.rpc.listfunds()
         infos = self.plugin.rpc.getinfo()
-        self.labelAlias.setText(infos["alias"])
-        self.labelPublicKey.setText(infos["id"])
-        self.labelColor.setText(infos["color"]) #TODO: make it a palette if possible
-        self.labelChannelCountActive.setText(str(infos["num_active_channels"]))
-        total_channels = infos["num_active_channels"] + infos["num_inactive_channels"] +\
-                infos["num_pending_channels"]
-        self.labelChannelCountTotal.setText(str(total_channels))
-        self.labelConnectedNodes.setText(str(infos["num_peers"]))
-        # Note: ln balance is in msat but Bitcoin's one is in msat
-        ln_balance_av = ln_balance_pen = 0
-        for i in funds["channels"]:
-            if "short_channel_id" in i:
-                ln_balance_av += int(i["our_amount_msat"])
-            else:
-                ln_balance_pen += int(i["our_amount_msat"])
-        self.labelBalanceLightning.setText(str(ln_balance_av) + "MSAT")
-        self.labelPendingLightning.setText(str(ln_balance_pen) + "MSAT")
-        self.labelLightningTotal.setText(str(ln_balance_av + ln_balance_pen) + "MSAT")
-        btc_balance_av = btc_balance_pen = 0
-        for i in funds["outputs"]:
-            if i["status"] == "confirmed":
-                btc_balance_av += i["value"]
-            else:
-                btc_balance_pen += i["value"]
-        self.labelBalanceBitcoin.setText(str(btc_balance_av) + "SAT")
-        self.labelPendingBitcoin.setText(str(btc_balance_pen) + "SAT")
-        self.labelBitcoinTotal.setText(str(btc_balance_av + btc_balance_pen) + "SAT")
+        # Condition to prevent for RPC errors
+        if infos:
+            self.labelAlias.setText(infos["alias"])
+            self.labelPublicKey.setText(infos["id"])
+            self.labelColor.setText(infos["color"]) #TODO: make it a palette if possible
+            self.labelChannelCountActive.setText(str(infos["num_active_channels"]))
+            total_channels = infos["num_active_channels"] + infos["num_inactive_channels"] +\
+                    infos["num_pending_channels"]
+            self.labelChannelCountTotal.setText(str(total_channels))
+            self.labelConnectedNodes.setText(str(infos["num_peers"]))
+        # Condition to prevent for RPC errors
+        if funds:
+            # Note: ln balance is in msat but Bitcoin's one is in msat
+            ln_balance_av = ln_balance_pen = 0
+            for i in funds["channels"]:
+                if "short_channel_id" in i:
+                    ln_balance_av += int(i["our_amount_msat"])
+                else:
+                    ln_balance_pen += int(i["our_amount_msat"])
+            self.labelBalanceLightning.setText(str(ln_balance_av) + "MSAT")
+            self.labelPendingLightning.setText(str(ln_balance_pen) + "MSAT")
+            self.labelLightningTotal.setText(str(ln_balance_av + ln_balance_pen) + "MSAT")
+            btc_balance_av = btc_balance_pen = 0
+            for i in funds["outputs"]:
+                if i["status"] == "confirmed":
+                    btc_balance_av += i["value"]
+                else:
+                    btc_balance_pen += i["value"]
+            self.labelBalanceBitcoin.setText(str(btc_balance_av) + "SAT")
+            self.labelPendingBitcoin.setText(str(btc_balance_pen) + "SAT")
+            self.labelBitcoinTotal.setText(str(btc_balance_av + btc_balance_pen) + "SAT")

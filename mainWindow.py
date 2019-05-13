@@ -6,6 +6,7 @@ from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QMainWindow, QWidget, QAction, qApp, QDesktopWidget, QStackedWidget
 
 from overviewPage import OverviewPage
+from sendPage import SendPage
 
 class MainWindow(QMainWindow):
     """The main window of our application.
@@ -52,15 +53,15 @@ class MainWindow(QMainWindow):
         self.overview_action = QAction(QIcon(":/icons/overview"), "&Overview", self)
         self.overview_action.setToolTip("Show overview page")
         self.overview_action.setShortcut("Alt+1")
-        #self.overview_action.triggered.connect()
+        self.overview_action.triggered.connect(self.showOverview)
         self.receivepay_action = QAction(QIcon(":/icons/receive"), "&Receive Payment", self)
         self.receivepay_action.setToolTip("Show receive payment page")
         self.receivepay_action.setShortcut("Alt+2")
-        #self.overview_action.triggered.connect()
+        #self.overview_action.triggered.connect(self.showReceive)
         self.sendpay_action = QAction(QIcon(":/icons/send"), "&Send Payment", self)
         self.sendpay_action.setToolTip("Show send payment page")
         self.sendpay_action.setShortcut("Alt+3")
-        #self.overview_action.triggered.connect()
+        self.sendpay_action.triggered.connect(self.showSend)
         self.managechan_action = QAction(QIcon(":/icons/lightning"), "&Manage channels", self)
         self.managechan_action.setToolTip("Show channel management page")
         self.managechan_action.setShortcut("Alt+4")
@@ -101,3 +102,14 @@ class MainWindow(QMainWindow):
         """
         self.overview_page = OverviewPage(self.plugin)
         self.page_manager.addWidget(self.overview_page)
+        self.send_page = SendPage(self.plugin)
+        self.page_manager.addWidget(self.send_page)
+
+    def showOverview(self):
+        """Set overviewPage as the current widget"""
+        self.overview_page.update()
+        self.page_manager.setCurrentWidget(self.overview_page)
+
+    def showSend(self):
+        """Set sendPage as the current widget"""
+        self.page_manager.setCurrentWidget(self.send_page)
