@@ -21,7 +21,16 @@ lightningd --plugin=gui.py
 Just launch `lightning-cli gui` :D.  
   
 ## Contributing
-Any contribution (issue, PR) is welcome. Also, if you help me on this project you may want to use the very handy [auto-reload plugin](https://github.com/lightningd/plugins/tree/master/autoreload). Please also note that PyQt5 has *__a very bad__* way to handle exception in slots : in short you cannot `except` a raised exception in a [slot](https://doc.qt.io/qt-5/signalsandslots.html), so be carefull and happy debuging ;).  
+Any contribution (issue, PR) is welcome.
+We use [forms](forms/)(ui files) to design pages : these are handled by PyQt5 with the `pyuic5` command line tool (installed with `pip install PyQt5`). If you modify a ui file (you may want to use [QDesigner](https://doc.qt.io/qt-5/qtdesigner-manual.html)), you can regenerate the Python code like :
+```shell
+pyuic5 forms/channelspage.ui -o forms/ui_channelsPage.py
+```
+Images are handled in the [qrc](gui.qrc) file : if you modify this resource file (for instance to add an image/icon), you can regenerate the Python code with :
+```shell
+pyrcc5 gui.qrc -o resources.py
+```
+Also, if you help me on this project you may want to use the very handy [auto-reload plugin](https://github.com/lightningd/plugins/tree/master/autoreload). Please also note that PyQt5 has *__a very bad__* way to handle exception in slots : in short you cannot `except` a raised exception in a [slot](https://doc.qt.io/qt-5/signalsandslots.html), so be carefull and happy debuging ;).  
    
 ## Licence
 BSD 3-clauses clear
