@@ -40,7 +40,10 @@ class MainWindow(QMainWindow):
         self.del_expired_invoices_action.triggered.connect(lambda: self.plugin.rpc.delexpiredinvoice())
         self.del_invoice_action = QAction("&Delete a specified unpaid invoice", self)
         self.del_invoice_action.triggered.connect(self.menuDelInvoice)
-        #self.get_address_act
+        self.get_address_p2sh_action = QAction("&Get a P2SH-embedded segwit address")
+        self.get_address_p2sh_action.triggered.connect(self.getAddressP2sh)
+        self.get_address_segwit_action = QAction("&Get a native segwit address")
+        self.get_address_segwit_action.triggered.connect(self.getAddressBech)
         # ToolBar actions
         self.show_overview_action = QAction(QIcon(":/icons/overview"), "&Overview", self)
         self.show_overview_action.setToolTip("Show overview page")
@@ -70,6 +73,9 @@ class MainWindow(QMainWindow):
         invoice_menu = self.menu.addMenu("&Invoices")
         invoice_menu.addAction(self.del_expired_invoices_action)
         invoice_menu.addAction(self.del_invoice_action)
+        bitcoin_menu = self.menu.addMenu("&Bitcoin")
+        bitcoin_menu.addAction(self.get_address_segwit_action)
+        bitcoin_menu.addAction(self.get_address_p2sh_action)
 
     def createPages(self):
         """Creates each of our pages, which are QWidget-inherited objects
@@ -101,6 +107,18 @@ class MainWindow(QMainWindow):
         self.toolbar.addAction(self.show_receivepay_action)
         self.toolbar.addAction(self.show_sendpay_action)
         self.toolbar.addAction(self.show_managechan_action)
+    
+    def getAddressP2sh(self):
+        """Shows a message box containing a P2SH-embedded segwit address"""
+        address = self.plugin.rpc.newaddr(addresstype="p2sh-segwit")
+        if address:
+            QMessageBox.information(self, "Bitcoin address", address["p2sh-segwit"])
+    
+    def getAddressBech(self):
+        """Shows a message box containing a native segwit address (bech32)"""
+        address = self.plugin.rpc.newaddr()
+        if address:
+            QMessageBox.information(self, "Bitcoin address", address["bech32"])
     
     def initUi(self):
         """Initializes the default parameters for the window (title, position, size)."""
