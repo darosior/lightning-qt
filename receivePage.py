@@ -10,11 +10,13 @@ class ReceivePage(QWidget, Ui_ReceivePage):
         self.plugin = plugin
         self.initUi()
 
-    def initUi(self):
-        """Initialize the UI by connecting actions"""
-        self.buttonGenerate.clicked.connect(self.generateInvoice)
-        self.buttonClear.clicked.connect(self.clearForm)
-
+    def clearForm(self):
+        """Reset the form to the default values"""
+        self.spinValue.setValue(1)
+        self.lineLabel.setText("")
+        self.lineDescription.setText("")
+        self.spinExpiry.setValue(604800) # A week
+    
     def generateInvoice(self):
         """Generate an invoice and display it"""
         amount_msat = self.spinValue.value()
@@ -25,10 +27,8 @@ class ReceivePage(QWidget, Ui_ReceivePage):
         # Condition to prevent RPC error
         if invoice:
             self.textResultInvoice.setText(invoice["bolt11"])
-
-    def clearForm(self):
-        """Reset the form to the default values"""
-        self.spinValue.setValue(1)
-        self.lineLabel.setText("")
-        self.lineDescription.setText("")
-        self.spinExpiry.setValue(604800) # A week
+   
+    def initUi(self):
+        """Initialize the UI by connecting actions"""
+        self.buttonGenerate.clicked.connect(self.generateInvoice)
+        self.buttonClear.clicked.connect(self.clearForm)

@@ -10,11 +10,6 @@ class SendPage(QWidget, Ui_SendPage):
         self.plugin = plugin
         self.initUi()
 
-    def initUi(self):
-        """Initialize the UI by connecting actions"""
-        self.buttonDecode.clicked.connect(self.decodeInvoice)
-        self.buttonPay.clicked.connect(self.payInvoice)
-    
     def decodeInvoice(self):
         """Decode the given bolt11 invoice"""
         invoice = self.plugin.rpc.decodepay(self.lineInvoice.text())
@@ -27,6 +22,11 @@ class SendPage(QWidget, Ui_SendPage):
             self.labelDescription.setText(invoice["description"])
             self.labelExpiry.setText(str(invoice["expiry"]))
             self.labelPublicKey.setText(invoice["payee"])
+
+    def initUi(self):
+        """Initialize the UI by connecting actions"""
+        self.buttonDecode.clicked.connect(self.decodeInvoice)
+        self.buttonPay.clicked.connect(self.payInvoice)
 
     def payInvoice(self):
         """Pay the given bolt11 invoice"""

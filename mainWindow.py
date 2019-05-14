@@ -21,19 +21,6 @@ class MainWindow(QMainWindow):
         self.plugin = plugin
         self.initUi()
 
-    def initUi(self):
-        """Initializes the default parameters for the window (title, position, size)."""
-        self.setWindowTitle("lightning-qt")
-        self.resize(700, 500)
-        geo = self.frameGeometry()
-        geo.moveCenter(QDesktopWidget().availableGeometry().center())
-        self.move(geo.topLeft())
-        self.createActions()
-        self.createMenu()
-        self.createToolbar()
-        self.createPageManager()
-        self.createPages()
-
     def createActions(self):
         """Creates the main actions of the page.
         
@@ -80,22 +67,6 @@ class MainWindow(QMainWindow):
         invoice_menu = self.menu.addMenu("&Invoices")
         invoice_menu.addAction(self.del_expired_invoices)
 
-    def createToolbar(self):
-        """Creates the toolbar used to navigate between pages"""
-        self.toolbar = self.addToolBar("")
-        self.toolbar.setContextMenuPolicy(Qt.PreventContextMenu)
-        self.toolbar.setMovable(False)
-        self.toolbar.setToolButtonStyle(Qt.ToolButtonTextBesideIcon)
-        self.toolbar.addAction(self.overview_action)
-        self.toolbar.addAction(self.receivepay_action)
-        self.toolbar.addAction(self.sendpay_action)
-        self.toolbar.addAction(self.managechan_action)
-
-    def createPageManager(self):
-        """Creates the QStackedWidget which we will use as the page manager"""
-        self.page_manager = QStackedWidget(self)
-        self.setCentralWidget(self.page_manager)
-
     def createPages(self):
         """Creates each of our pages, which are QWidget-inherited objects
         
@@ -111,6 +82,41 @@ class MainWindow(QMainWindow):
         self.channels_page = ChannelsPage(self.plugin)
         self.page_manager.addWidget(self.channels_page)
 
+    def createPageManager(self):
+        """Creates the QStackedWidget which we will use as the page manager"""
+        self.page_manager = QStackedWidget(self)
+        self.setCentralWidget(self.page_manager)
+
+    def createToolbar(self):
+        """Creates the toolbar used to navigate between pages"""
+        self.toolbar = self.addToolBar("")
+        self.toolbar.setContextMenuPolicy(Qt.PreventContextMenu)
+        self.toolbar.setMovable(False)
+        self.toolbar.setToolButtonStyle(Qt.ToolButtonTextBesideIcon)
+        self.toolbar.addAction(self.overview_action)
+        self.toolbar.addAction(self.receivepay_action)
+        self.toolbar.addAction(self.sendpay_action)
+        self.toolbar.addAction(self.managechan_action)
+    
+    def initUi(self):
+        """Initializes the default parameters for the window (title, position, size)."""
+        self.setWindowTitle("lightning-qt")
+        self.resize(700, 500)
+        geo = self.frameGeometry()
+        geo.moveCenter(QDesktopWidget().availableGeometry().center())
+        self.move(geo.topLeft())
+        self.createActions()
+        self.createMenu()
+        self.createToolbar()
+        self.createPageManager()
+        self.createPages()
+    
+    def showChannelsPage(self):
+        """Set channelsPage as the current widget"""
+        self.channels_page.clear()
+        self.channels_page.populateChannels()
+        self.page_manager.setCurrentWidget(self.channels_page)
+    
     def showOverview(self):
         """Set overviewPage as the current widget"""
         self.overview_page.update()
@@ -123,9 +129,3 @@ class MainWindow(QMainWindow):
     def showSend(self):
         """Set sendPage as the current widget"""
         self.page_manager.setCurrentWidget(self.send_page)
-
-    def showChannelsPage(self):
-        """Set channelsPage as the current widget"""
-        self.channels_page.clear()
-        self.channels_page.populateChannels()
-        self.page_manager.setCurrentWidget(self.channels_page)
