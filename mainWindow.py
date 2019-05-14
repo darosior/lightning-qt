@@ -3,7 +3,7 @@ import resources
 from lightning import Plugin
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QIcon
-from PyQt5.QtWidgets import QMainWindow, QWidget, QAction, qApp, QDesktopWidget, QStackedWidget
+from PyQt5.QtWidgets import QMainWindow, QWidget, QAction, qApp, QDesktopWidget, QStackedWidget, QInputDialog, QMessageBox
 
 from overviewPage import OverviewPage
 from receivePage import ReceivePage
@@ -26,7 +26,7 @@ class MainWindow(QMainWindow):
         
         Namely the menubar and toolbar actions.
         """
-        #MenuBar actions
+        # MenuBar actions
         self.quit_action = QAction("&Quit", self)
         self.quit_action.setShortcut("Ctrl+Q")
         self.quit_action.setStatusTip("Exit the GUI without stopping lightningd")
@@ -36,9 +36,12 @@ class MainWindow(QMainWindow):
         self.minimize_action.triggered.connect(lambda: self.showMinimized())
         self.restore_action = QAction("&Restore", self)
         self.restore_action.triggered.connect(lambda: self.show())
-        self.del_expired_invoices = QAction("&Delete expired invoices", self)
-        self.del_expired_invoices.triggered.connect(lambda: self.plugin.rpc.delexpiredinvoice())
-        #ToolBar actions
+        self.del_expired_invoices_action = QAction("&Delete expired invoices", self)
+        self.del_expired_invoices_action.triggered.connect(lambda: self.plugin.rpc.delexpiredinvoice())
+        self.del_invoice_action = QAction("&Delete a specified unpaid invoice", self)
+        self.del_invoice_action.triggered.connect(self.menuDelInvoice)
+        #self.get_address_act
+        # ToolBar actions
         self.show_overview_action = QAction(QIcon(":/icons/overview"), "&Overview", self)
         self.show_overview_action.setToolTip("Show overview page")
         self.show_overview_action.setShortcut("Alt+1")
@@ -65,7 +68,8 @@ class MainWindow(QMainWindow):
         window_menu.addAction(self.minimize_action)
         window_menu.addAction(self.restore_action)
         invoice_menu = self.menu.addMenu("&Invoices")
-        invoice_menu.addAction(self.del_expired_invoices)
+        invoice_menu.addAction(self.del_expired_invoices_action)
+        invoice_menu.addAction(self.del_invoice_action)
 
     def createPages(self):
         """Creates each of our pages, which are QWidget-inherited objects
@@ -111,6 +115,14 @@ class MainWindow(QMainWindow):
         self.createPageManager()
         self.createPages()
     
+    def menuDelInvoice(self):
+        """Shows a message which asks for an invoice label and delete this invoice"""
+        label = QInputDialog.getText(self, "Delete an unpaid invoice", "Enter the label of the invoice you want to delete")
+        if label[1]:
+            result = self.plugin.rpc.delinvoice(label[0], 'unpaid')
+            if result:
+                QMessageBox.information(self, "Delete an unpaid invoice", "Succesfully deleted invoice")
+
     def showChannelsPage(self):
         """Set channelsPage as the current widget"""
         self.channels_page.clear()
