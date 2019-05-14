@@ -6,6 +6,7 @@ from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QMainWindow, QWidget, QAction, qApp, QDesktopWidget, QStackedWidget
 
 from overviewPage import OverviewPage
+from receivePage import ReceivePage
 from sendPage import SendPage
 
 class MainWindow(QMainWindow):
@@ -57,7 +58,7 @@ class MainWindow(QMainWindow):
         self.receivepay_action = QAction(QIcon(":/icons/receive"), "&Receive Payment", self)
         self.receivepay_action.setToolTip("Show receive payment page")
         self.receivepay_action.setShortcut("Alt+2")
-        #self.overview_action.triggered.connect(self.showReceive)
+        self.receivepay_action.triggered.connect(self.showReceive)
         self.sendpay_action = QAction(QIcon(":/icons/send"), "&Send Payment", self)
         self.sendpay_action.setToolTip("Show send payment page")
         self.sendpay_action.setShortcut("Alt+3")
@@ -102,6 +103,8 @@ class MainWindow(QMainWindow):
         """
         self.overview_page = OverviewPage(self.plugin)
         self.page_manager.addWidget(self.overview_page)
+        self.receive_page = ReceivePage(self.plugin)
+        self.page_manager.addWidget(self.receive_page)
         self.send_page = SendPage(self.plugin)
         self.page_manager.addWidget(self.send_page)
 
@@ -109,6 +112,10 @@ class MainWindow(QMainWindow):
         """Set overviewPage as the current widget"""
         self.overview_page.update()
         self.page_manager.setCurrentWidget(self.overview_page)
+
+    def showReceive(self):
+        """Set receivePage as the current widget"""
+        self.page_manager.setCurrentWidget(self.receive_page)
 
     def showSend(self):
         """Set sendPage as the current widget"""
