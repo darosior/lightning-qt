@@ -3,7 +3,7 @@ from PyQt5.QtWidgets import QWidget
 from forms.ui_receivePage import Ui_ReceivePage
 
 class ReceivePage(QWidget, Ui_ReceivePage):
-    """The page to decode and/or pay bolt11 invoices"""
+    """The page to generate bolt11 invoices"""
     def __init__(self, plugin):
         super().__init__()
         self.setupUi(self)
@@ -22,7 +22,7 @@ class ReceivePage(QWidget, Ui_ReceivePage):
         description = self.lineDescription.text()
         expiry = self.spinExpiry.value()
         invoice = self.plugin.rpc.invoice(amount_msat, label, description, expiry)
-        # Condition to prevent error
+        # Condition to prevent RPC error
         if invoice:
             self.textResultInvoice.setText(invoice["bolt11"])
 

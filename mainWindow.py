@@ -8,6 +8,7 @@ from PyQt5.QtWidgets import QMainWindow, QWidget, QAction, qApp, QDesktopWidget,
 from overviewPage import OverviewPage
 from receivePage import ReceivePage
 from sendPage import SendPage
+from channelsPage import ChannelsPage
 
 class MainWindow(QMainWindow):
     """The main window of our application.
@@ -66,7 +67,7 @@ class MainWindow(QMainWindow):
         self.managechan_action = QAction(QIcon(":/icons/lightning"), "&Manage channels", self)
         self.managechan_action.setToolTip("Show channel management page")
         self.managechan_action.setShortcut("Alt+4")
-        #self.overview_action.triggered.connect()
+        self.managechan_action.triggered.connect(self.showChannelsPage)
 
     def createMenu(self):
         """Creates the menu at the top of the window."""
@@ -107,6 +108,8 @@ class MainWindow(QMainWindow):
         self.page_manager.addWidget(self.receive_page)
         self.send_page = SendPage(self.plugin)
         self.page_manager.addWidget(self.send_page)
+        self.channels_page = ChannelsPage(self.plugin)
+        self.page_manager.addWidget(self.channels_page)
 
     def showOverview(self):
         """Set overviewPage as the current widget"""
@@ -120,3 +123,9 @@ class MainWindow(QMainWindow):
     def showSend(self):
         """Set sendPage as the current widget"""
         self.page_manager.setCurrentWidget(self.send_page)
+
+    def showChannelsPage(self):
+        """Set channelsPage as the current widget"""
+        self.channels_page.clear()
+        self.channels_page.populateChannels()
+        self.page_manager.setCurrentWidget(self.channels_page)
