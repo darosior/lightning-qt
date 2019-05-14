@@ -24,4 +24,4 @@ Just launch `lightning-cli gui` :D.
 Any contribution (issue, PR) is welcome. Also, if you help me on this project you may want to use the very handy [auto-reload plugin](https://github.com/lightningd/plugins/tree/master/autoreload). Please also note that PyQt5 has *__a very bad__* way to handle exception in slots : in short you cannot `except` a raised exception in a [slot](https://doc.qt.io/qt-5/signalsandslots.html), so be carefull and happy debuging ;).  
    
 ## Licence
-BSD 3-clauses
+BSD 3-clauses clear
