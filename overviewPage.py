@@ -22,7 +22,8 @@ class OverviewPage(QWidget, Ui_OverviewPage):
         if infos:
             self.labelAlias.setText(infos["alias"])
             self.labelPublicKey.setText(infos["id"])
-            self.labelColor.setText(infos["color"]) #TODO: make it a palette if possible
+            self.labelColor.setText(infos["color"])
+            self.labelColor.setStyleSheet("QLabel {background-color: #"+infos["color"]+";}")
             self.labelChannelCountActive.setText(str(infos["num_active_channels"]))
             total_channels = infos["num_active_channels"] + infos["num_inactive_channels"] +\
                     infos["num_pending_channels"]

@@ -1,6 +1,6 @@
 # pylightning-qt
 *bitcoin-qt for C-Lightning, as simple as : `lightning-cli gui`*
-![lightning-qt screenshot](https://pixeldrain.com/api/file/naJLYUfI)  
+![lightning-qt screenshot](https://pixeldrain.com/api/file/XZAf7AdX)
   
 ## What is it ?
 lightning-qt is a Python plugin for [C-lightning](https://github.com/ElementsProject/lightning), a [Lightning Network](https://github.com/bitcoin/bitcoin/tree/master/src/qt) daemon. It enables the use of a [bitcoin-qt](https://github.com/bitcoin/bitcoin/tree/master/src/qt)-like Graphical User Interface (actually, part of the icons and forms have been taken from bitcoin-qt and modified) via the RPC interface.  
