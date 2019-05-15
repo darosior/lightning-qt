@@ -42,7 +42,7 @@ class ChannelsPage(QWidget, Ui_ChannelsPage):
             self.labelCloseResult.setText("")
 
     def createChannel(self):
-        """Create a channel given user-set values"""
+        """Connect to a peer and fund a channel with it"""
         peer = self.lineNewChannelId.text()
         self.labelNewChannelResult.setText("Connecting to peer..")
         self.labelNewChannelResult.repaint()
@@ -51,11 +51,12 @@ class ChannelsPage(QWidget, Ui_ChannelsPage):
             peer_id = peer.split('@')[0]
             self.labelNewChannelResult.setText("Funding the channel..")
             self.labelNewChannelResult.repaint()
-            txid = self.plugin.rpc.fundChannel(peer_id, self.spinNewChannelAmount.value(), feerate=None, 
+            fund_result = self.plugin.rpc.fundchannel(peer_id, self.spinNewChannelAmount.value(),
                     announce=not self.checkPrivateChannel.isChecked())
             # Condtion for RPC error in slots
-            if txid:
-                self.labelNewChannelResult.setText("Succesfully created the channel.\nFunding tx : {}".format(txid))
+            if fund_result:
+                self.labelNewChannelResult.setText("Succesfully created the channel.\nFunding tx : {}".format(
+                    str(fund_result["txid"])))
         else:
             self.labelNewChannelResult.setText("")
    
