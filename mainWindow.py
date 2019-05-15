@@ -120,9 +120,10 @@ class MainWindow(QMainWindow):
         if address:
             QMessageBox.information(self, "Bitcoin address", address["bech32"])
     
-    def initUi(self):
+   def initUi(self):
         """Initializes the default parameters for the window (title, position, size)."""
         self.setWindowTitle("lightning-qt")
+        self.setWindowIcon(QIcon(":/icons/lightning"))
         self.resize(700, 500)
         geo = self.frameGeometry()
         geo.moveCenter(QDesktopWidget().availableGeometry().center())

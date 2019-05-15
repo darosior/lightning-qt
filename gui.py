@@ -9,16 +9,16 @@ from mainWindow import MainWindow
 class HackedLightningRpc(LightningRpc):
     """Dark side Lightning Rpc
 
-    PyQt5 (after v5.5) will call qFatal() (and then abort()) when execution
-    fails in a slot. This behavior cannot be changed nor it can be try: .. except:.
-    It means that, for example, if you make a Rpc call which raises an error in a 
-    slot (for example, randomly, `decodepay` with an user-entered value) it will
-    exit the application without even a backtrace : PyQt5.5 we <3 u.
+    PyQt5 (after v5.5) will call qFatal() (and then abort()) when an exception is
+    thrown in a slot. This behavior cannot be changed (C++ API) nor it can `except`ed.
+    It means that if you make a Rpc call which raises an error in a slot (for example,
+    randomly, `decodepay` with an user-entered value) it will exit the application
+    without even a traceback : PyQt5.5 we <3 u.
 
-    To avoid this behevior I thought of making hand checks before making a Rpc in
-    a slot (i.e. every Rpc call since a GUI is event-driven), or override the `call`
-    method which raises exceptions to quiet the RPC exception and open a dialog for
-    the user to understand what's happening. I chose the second method.
+    To avoid this behevior I thought of making hand checks before making a Rpc call in
+    a slot (i.e. doing this for each Rpc call since a GUI is event-driven), or override
+    the `call` method which raises exceptions to quiet the RPC exception and open a dialog
+    for the user to understand what's happening. I chose the second method.
     """
     def call(self, method, payload=None):
         """Original call method with Qt-style exception handling"""
@@ -27,7 +27,7 @@ class HackedLightningRpc(LightningRpc):
         except RpcError as e:
             QMessageBox.warning(None, "RPC error", str(e))
             pass
-        return False
+        return False # Rpc call failed
 
 
 plugin = Plugin()
