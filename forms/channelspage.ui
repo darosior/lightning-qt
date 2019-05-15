@@ -44,6 +44,12 @@
            <layout class="QHBoxLayout" name="horizontalLayout_2">
             <item>
              <widget class="QLineEdit" name="lineNewChannelId">
+              <property name="minimumSize">
+               <size>
+                <width>100</width>
+                <height>0</height>
+               </size>
+              </property>
               <property name="toolTip">
                <string>The node to open a channel with</string>
               </property>
@@ -138,8 +144,17 @@
            <layout class="QHBoxLayout" name="horizontalLayout_3">
             <item>
              <widget class="QLineEdit" name="lineCloseId">
+              <property name="minimumSize">
+               <size>
+                <width>100</width>
+                <height>0</height>
+               </size>
+              </property>
               <property name="toolTip">
                <string>The Id of a node or a channel (or a short id of a channel)</string>
+              </property>
+              <property name="placeholderText">
+               <string>channel/peer id</string>
               </property>
              </widget>
             </item>
