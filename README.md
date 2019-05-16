@@ -13,6 +13,7 @@ For more informations about plugins and their installations you can checkout the
 ```shell
 git clone https://github.com/darosior/pylightning-qt && cd pylightning-qt
 pip3 install -r requirements.txt
+chmod a+x gui.py
 # And just start lightningd like
 lightningd --plugin=gui.py
 ```
