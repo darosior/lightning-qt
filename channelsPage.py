@@ -24,6 +24,8 @@ class ChannelsPage(QWidget, Ui_ChannelsPage):
             self.layoutNodeId.takeAt(2).widget().deleteLater()
         while self.layoutAmount.count() > 2:
             self.layoutAmount.takeAt(2).widget().deleteLater()
+        while self.layoutIncoming.count() > 2:
+            self.layoutIncoming.takeAt(2).widget().deleteLater()
 
     def closeChannel(self):
         """Close the channel specified by the user"""
@@ -82,9 +84,14 @@ class ChannelsPage(QWidget, Ui_ChannelsPage):
                     peer_id.setWordWrap(True)
                     peer_id.setFixedWidth(200) #TODO: Handle this
                     self.layoutNodeId.addWidget(peer_id)
-                    our_amount = QLabel(str(channel["our_amount_msat"]))
+                    our_amount = QLabel(str(channel["our_amount_msat"])[:-4])
                     our_amount.setTextInteractionFlags(Qt.TextSelectableByMouse)
+                    our_amount.setAlignment(Qt.AlignRight)
                     self.layoutAmount.addWidget(our_amount)
+                    their_amount = QLabel(str((channel["channel_total_sat"] - channel["channel_sat"]) * 1000))
+                    their_amount.setTextInteractionFlags(Qt.TextSelectableByMouse)
+                    their_amount.setAlignment(Qt.AlignRight)
+                    self.layoutIncoming.addWidget(their_amount)
 
     def setRoutingFees(self):
         """Set a channel (or global) routing fees"""

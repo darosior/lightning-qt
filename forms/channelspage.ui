@@ -405,11 +405,29 @@
              </layout>
             </item>
             <item>
+             <layout class="QVBoxLayout" name="layoutIncoming">
+              <item>
+               <widget class="QLabel" name="label_10">
+                <property name="text">
+                 <string>Incoming (msat)</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="Line" name="line_6">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item>
              <layout class="QVBoxLayout" name="layoutAmount">
               <item>
                <widget class="QLabel" name="label_8">
                 <property name="text">
-                 <string>Amount</string>
+                 <string>Amount (msat)</string>
                 </property>
                </widget>
               </item>

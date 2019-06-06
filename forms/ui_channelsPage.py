@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'forms/channelspage.ui'
+# Form implementation generated from reading ui file './forms/channelspage.ui'
 #
 # Created by: PyQt5 UI code generator 5.12.2
 #
@@ -208,6 +208,17 @@ class Ui_ChannelsPage(object):
         self.line_2.setObjectName("line_2")
         self.layoutNodeId.addWidget(self.line_2)
         self.horizontalLayout_5.addLayout(self.layoutNodeId)
+        self.layoutIncoming = QtWidgets.QVBoxLayout()
+        self.layoutIncoming.setObjectName("layoutIncoming")
+        self.label_10 = QtWidgets.QLabel(self.verticalFrame)
+        self.label_10.setObjectName("label_10")
+        self.layoutIncoming.addWidget(self.label_10)
+        self.line_6 = QtWidgets.QFrame(self.verticalFrame)
+        self.line_6.setFrameShape(QtWidgets.QFrame.HLine)
+        self.line_6.setFrameShadow(QtWidgets.QFrame.Sunken)
+        self.line_6.setObjectName("line_6")
+        self.layoutIncoming.addWidget(self.line_6)
+        self.horizontalLayout_5.addLayout(self.layoutIncoming)
         self.layoutAmount = QtWidgets.QVBoxLayout()
         self.layoutAmount.setObjectName("layoutAmount")
         self.label_8 = QtWidgets.QLabel(self.verticalFrame)
@@ -257,6 +268,7 @@ class Ui_ChannelsPage(object):
         self.label_2.setText(_translate("ChannelsPage", "Your channels"))
         self.label_4.setText(_translate("ChannelsPage", "Channel id"))
         self.label_7.setText(_translate("ChannelsPage", "Node id"))
-        self.label_8.setText(_translate("ChannelsPage", "Amount"))
+        self.label_10.setText(_translate("ChannelsPage", "Incoming (msat)"))
+        self.label_8.setText(_translate("ChannelsPage", "Amount (msat)"))
 
 
