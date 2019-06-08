@@ -33,7 +33,7 @@ class SendPage(QWidget, Ui_SendPage):
         pay_return = self.plugin.rpc.pay(self.lineInvoice.text())
         # Condition to prevent for RPC errors
         if pay_return:
-            if "preimage" in pay_return:
-                self.labelPaymentResult.setText("Succesfully paid invoice. Called `sendpay` {} times".format(pay_return["sendpay_tries"]))
+            if "payment_preimage" in pay_return:
+                self.labelPaymentResult.setText("Succesfully paid invoice. Preimage: {}".format(pay_return["payment_preimage"]))
             else:
                 self.labelPaymentResult.setText("Could not pay invoice. Maybe you should open a channel with the payee")
