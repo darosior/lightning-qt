@@ -2,6 +2,7 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QWidget, QLabel
 
 from forms.ui_channelsPage import Ui_ChannelsPage
+from utils import timeout_bool
 
 class ChannelsPage(QWidget, Ui_ChannelsPage):
     """The page to manage LN channels"""
@@ -15,8 +16,11 @@ class ChannelsPage(QWidget, Ui_ChannelsPage):
     def clear(self):
         """Reset all the child widget to their default value"""
         self.lineNewChannelId.setText("")
+        self.labelNewChannelResult.setText("")
         self.lineCloseId.setText("")
+        self.labelCloseResult.setText("")
         self.lineSetFeesId.setText("")
+        self.labelSetFeesResult.setText("")
         self.checkCloseForce.setChecked(False)
         while self.layoutChannelId.count() > 2:
             self.layoutChannelId.takeAt(2).widget().deleteLater()
@@ -38,8 +42,8 @@ class ChannelsPage(QWidget, Ui_ChannelsPage):
                 self.labelCloseResult.setText("{} closed channel at {}".format(
                     closing_result["type"], closing_result["txid"]))
             else:
-                self.labelCloseResult.setText("Could not close the channel before timeout. Channel\
-                        might still be closed")
+                self.labelCloseResult.setText("Could not close the channel before\
+                        timeout. Channel might still be closed in the future.")
         else:
             self.labelCloseResult.setText("")
 
@@ -49,18 +53,20 @@ class ChannelsPage(QWidget, Ui_ChannelsPage):
         self.labelNewChannelResult.setText("Connecting to peer..")
         self.labelNewChannelResult.repaint()
         # Condtion for RPC error in slots
-        if self.plugin.rpc.connect(peer):
+        if timeout_bool(2, self.plugin.rpc.connect, peer):
             peer_id = peer.split('@')[0]
             self.labelNewChannelResult.setText("Funding the channel..")
             self.labelNewChannelResult.repaint()
-            fund_result = self.plugin.rpc.fundchannel(peer_id, self.spinNewChannelAmount.value(),
+            fund_result = self.plugin.rpc.fundchannel(peer_id,
+                    self.spinNewChannelAmount.value(),
                     announce=not self.checkPrivateChannel.isChecked())
             # Condtion for RPC error in slots
             if fund_result:
-                self.labelNewChannelResult.setText("Succesfully created the channel.\nFunding tx : {}".format(
-                    str(fund_result["txid"])))
+                self.labelNewChannelResult.setText(
+                        "Succesfully created the channel.\nFunding tx : {}".format(
+                            str(fund_result["txid"])))
         else:
-            self.labelNewChannelResult.setText("")
+            self.labelNewChannelResult.setText("Could not connect to peer, connection timed out.")
    
     def initUi(self):
         """Initialize the UI by connecting actions"""
