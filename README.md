@@ -6,7 +6,7 @@
 lightning-qt is a Python plugin for [C-lightning](https://github.com/ElementsProject/lightning), a [Lightning Network](https://github.com/bitcoin/bitcoin/tree/master/src/qt) daemon. It enables the use of a [bitcoin-qt](https://github.com/bitcoin/bitcoin/tree/master/src/qt)-like Graphical User Interface (actually, part of the icons and forms have been taken from bitcoin-qt and modified) via the RPC interface.  
   
 ## Why ?
-Currently does not have a GUI, and I think that having one which looks like bitcoin-qt is great for people coming from [bitcoin-core](https://github.com/bitcoin/bitcoin), which most of the C-Lightning users do (or have at least ever used bitcoin-qt). Having it directly available from the RPC is also quite convenient.  
+Currently lightning does not have a GUI, and I think that having one which looks like bitcoin-qt is great for people coming from [bitcoin-core](https://github.com/bitcoin/bitcoin), which most of the C-Lightning users do (or have at least ever used bitcoin-qt). Having it directly available from the RPC is also quite convenient.  
   
 ## How to install it ?
 For more informations about plugins and their installations you can checkout the [lightningd/plugins](https://github.com/lightningd/plugins) repository (which has a great list of plugins too). For a quick solution :  
