@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
 import os
+import sys
 
 from lightning import LightningRpc, Plugin, RpcError
 from PyQt5.QtWidgets import QApplication, QWidget, QMessageBox
 
 from mainWindow import MainWindow
+from utils import timeout_bool
 
 class HackedLightningRpc(LightningRpc):
     """Dark side Lightning Rpc
@@ -46,4 +48,24 @@ def gui(plugin):
     win.show()
     return "Succesfully stopped lightning-qt" if not app.exec_() else "An error occured"
 
-plugin.run()
+if __name__ == "__main__":
+    print("Standalone mode")
+    if len(sys.argv) == 1:
+        print("Using default 'lightning-rpc' socket path")
+        plugin.rpc = HackedLightningRpc(os.path.join(os.path.expanduser("~"), ".lightning", "lightning-rpc"))
+    elif len(sys.argv) == 2:
+        path = sys.argv[1].split("=")[1]
+        plugin.rpc = HackedLightningRpc(path)
+    elif len(sys.argv) == 3:
+        plugin.rpc = HackedLightningRpc(sys.argv[2])
+    else:
+        print("lightning-qt, bitcoin-qt for lightningd")
+        print("usage :")
+        # Actually we don't mind the argument's name
+        print("    python3 guy.py --socket-path /path/to/lightning-rpc/socket")
+    # Sometimes a forwarded UNIX domain socket might be usable only after some writing
+    while timeout_bool(2, plugin.rpc.getinfo):
+        print(".")
+    print(gui(plugin))
+else:
+    plugin.run()
