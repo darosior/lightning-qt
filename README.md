@@ -20,6 +20,11 @@ lightningd --plugin=gui.py
   
 ## How to use it ?
 Just launch `lightning-cli gui` :D.  
+You can now also use lightning-qt in standalone mode. It will connect to a socket which path can be given as a command line option (and defaults to $HOME/.lightning/lightning-rpc) : this can be useful to use lightning-qt as a remote control for your lightning node hosted on another computer, you could for example share a socket through ssh and start lightning-qt listening on this socket i.e.  
+```bash
+python3 lightning-qt --socket-path /path/to/unixdomain/socket
+```
+  
   
 ## Contributing
 Any contribution (issue, PR) is welcome.
