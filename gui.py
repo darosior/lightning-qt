@@ -48,7 +48,7 @@ def gui(plugin):
     win.show()
     return "Succesfully stopped lightning-qt" if not app.exec_() else "An error occured"
 
-if __name__ == "__main__":
+if sys.stdin.isatty():
     print("Standalone mode")
     if len(sys.argv) == 1:
         print("Using default 'lightning-rpc' socket path")
