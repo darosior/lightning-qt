@@ -1,4 +1,11 @@
 #!/usr/bin/env python3
+
+# Better safe than sorry :-)
+SUBSCRIBE_NOTIF = True
+try:
+    import notify2
+except ImportError:
+    SUBSCRIBE_NOTIF = False
 import os
 import sys
 
@@ -34,11 +41,14 @@ class HackedLightningRpc(LightningRpc):
 
 plugin = Plugin()
 
+
 @plugin.init()
 def init(options, configuration, plugin):
+    notify2.init("lightning-qt")
     path = os.path.join(plugin.lightning_dir, plugin.rpc_filename)
     # See above the docstring for rationale
     plugin.rpc = HackedLightningRpc(path)
+
 
 @plugin.method("gui")
 def gui(plugin):
@@ -47,6 +57,44 @@ def gui(plugin):
     win = MainWindow(plugin)
     win.show()
     return "Succesfully stopped lightning-qt" if not app.exec_() else "An error occured"
+
+
+if SUBSCRIBE_NOTIF:
+    @plugin.subscribe("connect")
+    def peer_connected(plugin, id, address):
+        n = notify2.Notification("C-lightning",
+                                 "Peer with id {} and ip {} just connected to you"
+                                 .format(id, address))
+        n.show()
+
+    @plugin.subscribe("disconnect")
+    def peer_disconnected(plugin, id):
+        n = notify2.Notification("C-lightning",
+                                 "Peer with id {} just disconnected from you"
+                                 .format(id))
+        n.show()
+
+    @plugin.subscribe("invoice_payment")
+    def invoice_payment(plugin, invoice_payment):
+        n = notify2.Notification("C-lightning",
+                                 "Invoice with label {} was just paid."
+                                 "Amount: {}"
+                                 "Preimage: {}"
+                                 .format(invoice_payment["label"],
+                                        invoice_payment["preimage"],
+                                        invoice_payment["msat"]))
+        n.show()
+
+    @plugin.subscribe("channel_opened")
+    def channel_opened(plugin, channel_opened):
+        n = notify2.Notification("C-lightning",
+                                 "A channel was opened to you by {}, with an amount"
+                                 " of {} and the following funding transaction id:"
+                                 " {}.".format(channel_opened["id"],
+                                            channel_opened["amount"],
+                                            channel_opened["funding_txid"]))
+        n.show()
+
 
 if sys.stdin.isatty():
     print("Standalone mode")
