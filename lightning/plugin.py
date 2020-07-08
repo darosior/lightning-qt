@@ -1,10 +1,12 @@
+from binascii import hexlify
 from collections import OrderedDict
 from enum import Enum
-from lightning import LightningRpc, Millisatoshi
+from .lightning import LightningRpc, Millisatoshi
 from threading import RLock
 
 import inspect
 import json
+import math
 import os
 import re
 import sys
@@ -30,12 +32,15 @@ class Method(object):
      - RPC exposed by RPC passthrough
      - HOOK registered to be called synchronously by lightningd
     """
-    def __init__(self, name, func, mtype=MethodType.RPCMETHOD, category=None):
+    def __init__(self, name, func, mtype=MethodType.RPCMETHOD, category=None,
+                 desc=None, long_desc=None):
         self.name = name
         self.func = func
         self.mtype = mtype
         self.category = category
         self.background = False
+        self.desc = desc
+        self.long_desc = long_desc
 
 
 class Request(dict):
@@ -78,9 +83,13 @@ class Request(dict):
         self._write_result({
             'jsonrpc': '2.0',
             'id': self.id,
-            "error": "Error while processing {method}: {exc}".format(
-                method=self.method, exc=repr(exc)
-            ),
+            "error": {
+                "code": -32600,  # "Invalid Request"
+                "message": "Error while processing {method}: {exc}"
+                           .format(method=self.method, exc=str(exc)),
+                # 'data' field "may be omitted."
+                "traceback": traceback.format_exc(),
+            },
         })
 
     def _write_result(self, result):
@@ -96,9 +105,36 @@ class Plugin(object):
 
     """
 
-    def __init__(self, stdout=None, stdin=None, autopatch=True):
+    def __init__(self, stdout=None, stdin=None, autopatch=True, dynamic=True,
+                 init_features=None, node_features=None, invoice_features=None):
         self.methods = {'init': Method('init', self._init, MethodType.RPCMETHOD)}
         self.options = {}
+
+        def convert_featurebits(bits):
+            """Convert the featurebits into the bytes required to hexencode.
+            """
+            if bits is None:
+                return None
+
+            elif isinstance(bits, int):
+                bitlen = math.ceil(math.log(bits, 256))
+                return hexlify(bits.to_bytes(bitlen, 'big')).decode('ASCII')
+
+            elif isinstance(bits, str):
+                # Assume this is already hex encoded
+                return bits
+
+            elif isinstance(bits, bytes):
+                return hexlify(bits).decode('ASCII')
+
+            else:
+                raise ValueError("Could not convert featurebits to hex-encoded string")
+
+        self.featurebits = {
+            'init': convert_featurebits(init_features),
+            'node': convert_featurebits(node_features),
+            'invoice': convert_featurebits(invoice_features),
+        }
 
         # A dict from topics to handler functions
         self.subscriptions = {}
@@ -108,6 +144,9 @@ class Plugin(object):
         if not stdin:
             self.stdin = sys.stdin
 
+        self.lightning_version = None
+        if os.getenv('LIGHTNINGD_VERSION'):
+            self.lightning_version = os.getenv('LIGHTNINGD_VERSION')
         if os.getenv('LIGHTNINGD_PLUGIN') and autopatch:
             monkey_patch(self, stdout=True, stderr=True)
 
@@ -115,11 +154,14 @@ class Plugin(object):
         self.rpc_filename = None
         self.lightning_dir = None
         self.rpc = None
+        self.startup = True
+        self.dynamic = dynamic
         self.child_init = None
 
         self.write_lock = RLock()
 
-    def add_method(self, name, func, background=False, category=None):
+    def add_method(self, name, func, background=False, category=None, desc=None,
+                   long_desc=None):
         """Add a plugin method to the dispatch table.
 
         The function will be expected at call time (see `_dispatch`)
@@ -156,7 +198,7 @@ class Plugin(object):
             )
 
         # Register the function with the name
-        method = Method(name, func, MethodType.RPCMETHOD, category)
+        method = Method(name, func, MethodType.RPCMETHOD, category, desc, long_desc)
         method.background = background
         self.methods[name] = method
 
@@ -177,6 +219,19 @@ class Plugin(object):
             raise ValueError(
                 "Topic {} already has a handler".format(topic)
             )
+
+        # Make sure the notification callback has a **kwargs argument so that it
+        # doesn't break if we add more arguments to the call later on. Issue a
+        # warning if it does not.
+        s = inspect.signature(func)
+        kinds = [p.kind for p in s.parameters.values()]
+        if inspect.Parameter.VAR_KEYWORD not in kinds:
+            self.log(
+                "Notification handler {} for notification {} does not have a "
+                "variable keyword argument. It is strongly suggested to add "
+                "`**kwargs` as last parameter to hook and notification "
+                "handlers.".format(func.__name__, topic), level="warn")
+
         self.subscriptions[topic] = func
 
     def subscribe(self, topic):
@@ -199,6 +254,9 @@ class Plugin(object):
                 "Name {} is already used by another option".format(name)
             )
 
+        if opt_type not in ["string", "int", "bool", "flag"]:
+            raise ValueError('{} not in supported type set (string, int, bool, flag)')
+
         self.options[name] = {
             'name': name,
             'default': default,
@@ -206,6 +264,15 @@ class Plugin(object):
             'type': opt_type,
             'value': None,
         }
+
+    def add_flag_option(self, name, description):
+        """Add a flag option that we'd like to register with lightningd.
+
+        Needs to be called before `Plugin.run`, otherwise we might not
+        end up getting it set.
+
+        """
+        self.add_option(name, None, description, opt_type="flag")
 
     def get_option(self, name):
         if name not in self.options:
@@ -216,23 +283,25 @@ class Plugin(object):
         else:
             return self.options[name]['default']
 
-    def async_method(self, method_name, category=None):
+    def async_method(self, method_name, category=None, desc=None, long_desc=None):
         """Decorator to add an async plugin method to the dispatch table.
 
         Internally uses add_method.
         """
         def decorator(f):
-            self.add_method(method_name, f, background=True, category=category)
+            self.add_method(method_name, f, background=True, category=category,
+                            desc=desc, long_desc=long_desc)
             return f
         return decorator
 
-    def method(self, method_name, category=None):
+    def method(self, method_name, category=None, desc=None, long_desc=None):
         """Decorator to add a plugin method to the dispatch table.
 
         Internally uses add_method.
         """
         def decorator(f):
-            self.add_method(method_name, f, background=False, category=category)
+            self.add_method(method_name, f, background=False, category=category,
+                            desc=desc, long_desc=long_desc)
             return f
         return decorator
 
@@ -243,6 +312,19 @@ class Plugin(object):
             raise ValueError(
                 "Method {} was already registered".format(name, self.methods[name])
             )
+
+        # Make sure the hook callback has a **kwargs argument so that it
+        # doesn't break if we add more arguments to the call later on. Issue a
+        # warning if it does not.
+        s = inspect.signature(func)
+        kinds = [p.kind for p in s.parameters.values()]
+        if inspect.Parameter.VAR_KEYWORD not in kinds:
+            self.log(
+                "Hook handler {} for hook {} does not have a variable keyword "
+                "argument. It is strongly suggested to add `**kwargs` as last "
+                "parameter to hook and notification handlers.".format(
+                    func.__name__, name), level="warn")
+
         method = Method(name, func, MethodType.HOOK)
         method.background = background
         self.methods[name] = method
@@ -280,9 +362,10 @@ class Plugin(object):
     @staticmethod
     def _coerce_arguments(func, ba):
         args = OrderedDict()
+        annotations = func.__annotations__ if hasattr(func, "__annotations__") else {}
         for key, val in ba.arguments.items():
-            annotation = func.__annotations__.get(key)
-            if annotation == Millisatoshi:
+            annotation = annotations.get(key, None)
+            if annotation is not None and annotation == Millisatoshi:
                 args[key] = Millisatoshi(val)
             else:
                 args[key] = val
@@ -480,21 +563,32 @@ class Plugin(object):
                 'name': method.name,
                 'category': method.category if method.category else "plugin",
                 'usage': " ".join(args),
-                'description': doc
+                'description': doc if not method.desc else method.desc
             })
+            if method.long_desc:
+                methods[len(methods) - 1]["long_description"] = method.long_desc
 
-        return {
+        manifest = {
             'options': list(self.options.values()),
             'rpcmethods': methods,
             'subscriptions': list(self.subscriptions.keys()),
             'hooks': hooks,
+            'dynamic': self.dynamic,
         }
+
+        # Compact the features a bit, not important.
+        features = {k: v for k, v in self.featurebits.items() if v is not None}
+        if features is not None:
+            manifest['featurebits'] = features
+
+        return manifest
 
     def _init(self, options, configuration, request):
         self.rpc_filename = configuration['rpc-file']
         self.lightning_dir = configuration['lightning-dir']
         path = os.path.join(self.lightning_dir, self.rpc_filename)
         self.rpc = LightningRpc(path)
+        self.startup = configuration['startup']
         for name, value in options.items():
             self.options[name]['value'] = value
 
