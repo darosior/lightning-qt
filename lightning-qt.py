@@ -9,7 +9,7 @@ except ImportError:
 import os
 import sys
 
-from lightning import LightningRpc, Plugin, RpcError
+from pyln.client import LightningRpc, Plugin, RpcError
 from PyQt5.QtWidgets import QApplication, QWidget, QMessageBox
 
 from mainWindow import MainWindow
@@ -38,9 +38,7 @@ class HackedLightningRpc(LightningRpc):
             pass
         return False # Rpc call failed
 
-
 plugin = Plugin()
-
 
 @plugin.init()
 def init(options, configuration, plugin):

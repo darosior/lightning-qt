@@ -1,6 +1,5 @@
 import resources
 
-from lightning import Plugin
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QMainWindow, QWidget, QAction, qApp, QDesktopWidget, QStackedWidget, QInputDialog, QMessageBox
