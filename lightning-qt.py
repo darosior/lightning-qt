@@ -38,9 +38,7 @@ class HackedLightningRpc(LightningRpc):
             pass
         return False # Rpc call failed
 
-
 plugin = Plugin()
-
 
 @plugin.init()
 def init(options, configuration, plugin):
