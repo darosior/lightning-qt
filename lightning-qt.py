@@ -42,7 +42,8 @@ plugin = Plugin()
 
 @plugin.init()
 def init(options, configuration, plugin):
-    notify2.init("lightning-qt")
+    if SUBSCRIBE_NOTIF:
+        notify2.init("lightning-qt")
     path = os.path.join(plugin.lightning_dir, plugin.rpc_filename)
     # See above the docstring for rationale
     plugin.rpc = HackedLightningRpc(path)
