@@ -8,6 +8,7 @@ from overviewPage import OverviewPage
 from receivePage import ReceivePage
 from sendPage import SendPage
 from channelsPage import ChannelsPage
+from paymentsPage import PaymentsPage
 
 class MainWindow(QMainWindow):
     """The main window of our application.
@@ -60,6 +61,10 @@ class MainWindow(QMainWindow):
         self.show_managechan_action.setToolTip("Show channel management page")
         self.show_managechan_action.setShortcut("Alt+4")
         self.show_managechan_action.triggered.connect(self.showChannelsPage)
+        self.show_payments_action = QAction(QIcon(":/icons/history"), "&Payments", self)
+        self.show_payments_action.setToolTip("Show payments history page")
+        self.show_payments_action.setShortcut("Alt+5")
+        self.show_payments_action.triggered.connect(self.showPaymentsPage)
 
     def createMenu(self):
         """Creates the menu at the top of the window."""
@@ -90,6 +95,8 @@ class MainWindow(QMainWindow):
         self.page_manager.addWidget(self.send_page)
         self.channels_page = ChannelsPage(self.plugin)
         self.page_manager.addWidget(self.channels_page)
+        self.payments_page = PaymentsPage(self.plugin)
+        self.page_manager.addWidget(self.payments_page)
 
     def createPageManager(self):
         """Creates the QStackedWidget which we will use as the page manager"""
@@ -106,7 +113,8 @@ class MainWindow(QMainWindow):
         self.toolbar.addAction(self.show_receivepay_action)
         self.toolbar.addAction(self.show_sendpay_action)
         self.toolbar.addAction(self.show_managechan_action)
-    
+        self.toolbar.addAction(self.show_payments_action)
+
     def getAddressP2sh(self):
         """Shows a message box containing a P2SH-embedded segwit address"""
         address = self.plugin.rpc.newaddr(addresstype="p2sh-segwit")
@@ -146,7 +154,12 @@ class MainWindow(QMainWindow):
         self.channels_page.clear()
         self.channels_page.populateChannels()
         self.page_manager.setCurrentWidget(self.channels_page)
-    
+
+    def showPaymentsPage(self):
+        """Set paymentsPage as the current widget"""
+        self.payments_page.populatePayments()
+        self.page_manager.setCurrentWidget(self.payments_page)
+
     def showOverview(self):
         """Set overviewPage as the current widget"""
         self.overview_page.update()
