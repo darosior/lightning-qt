@@ -58,7 +58,6 @@ class PaymentsPage(QWidget, Ui_PaymentsPage):
         if pays:
             for pay in pays["pays"]:
                 decodedPay = self.plugin.rpc.decodepay(pay["bolt11"])
-                # Only populate with settled channels
                 if "label" in pay:
                     self.paymentsData.append([pay["status"],datetime.datetime.fromtimestamp(decodedPay["created_at"]),"Pay",pay["label"],pay["payment_hash"],decodedPay["msatoshi"],pay["bolt11"]])
                 else:
@@ -69,7 +68,6 @@ class PaymentsPage(QWidget, Ui_PaymentsPage):
         if invoices:
             for invoice in invoices["invoices"]:
                 decodedPay = self.plugin.rpc.decodepay(invoice["bolt11"])                
-                # Only populate with settled channels
                 if "label" in invoice:                
                     self.paymentsData.append([invoice["status"],datetime.datetime.fromtimestamp(decodedPay["created_at"]),"Invoice",invoice["label"],invoice["payment_hash"],decodedPay["msatoshi"],invoice["bolt11"]])                     
                 else:
