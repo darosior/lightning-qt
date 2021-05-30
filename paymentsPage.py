@@ -154,12 +154,7 @@ class TableModel(QAbstractTableModel):
         return len(self._arraydata)
 
     def columnCount(self, index):
-        # The following takes the first sub-list, and returns
-        # the length (only works if all rows are an equal length)
-        if len(self._arraydata) > 0 :
-            return len(self._arraydata[0])
-        else :
-            return 0
+        return len(self._headerdata)
 
     def headerData(self, section, orientation, role):
         if role == Qt.TextAlignmentRole:
